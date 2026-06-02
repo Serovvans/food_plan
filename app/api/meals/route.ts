@@ -1,11 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { MealType } from "@prisma/client";
 
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const GET = auth(async function (req) {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type") as MealType | null;
@@ -17,15 +16,13 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json({ meals });
-}
+}) as any;
 
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const POST = auth(async function (req) {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { name, type, prepMinutes, notes, ingredients } = await req.json();
 
-  // Calculate macros from ingredients
   let kcal = 0, protein = 0, fat = 0, carbs = 0;
   for (const ing of ingredients as { productId: string; grams: number }[]) {
     const product = await prisma.product.findUnique({ where: { id: ing.productId } });
@@ -55,4 +52,4 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ meal }, { status: 201 });
-}
+}) as any;
