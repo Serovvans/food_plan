@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { startOfDay } from "date-fns";
 
-export const GET = auth(async function (req) {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const dateParam = searchParams.get("date");
@@ -19,10 +20,11 @@ export const GET = auth(async function (req) {
   });
 
   return NextResponse.json({ logs });
-}) as any;
+}
 
-export const POST = auth(async function (req) {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { mealId, date } = await req.json();
   const meal = await prisma.meal.findUnique({ where: { id: mealId } });
@@ -42,10 +44,11 @@ export const POST = auth(async function (req) {
   });
 
   return NextResponse.json({ log });
-}) as any;
+}
 
-export const DELETE = auth(async function (req) {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { mealId, date } = await req.json();
   const logDate = date ? startOfDay(new Date(date)) : startOfDay(new Date());
@@ -59,4 +62,4 @@ export const DELETE = auth(async function (req) {
   });
 
   return NextResponse.json({ ok: true });
-}) as any;
+}

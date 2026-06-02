@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { MealType } from "@prisma/client";
 
-export const GET = auth(async function (req) {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type") as MealType | null;
@@ -16,10 +17,11 @@ export const GET = auth(async function (req) {
   });
 
   return NextResponse.json({ meals });
-}) as any;
+}
 
-export const POST = auth(async function (req) {
-  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { name, type, prepMinutes, notes, ingredients } = await req.json();
 
@@ -52,4 +54,4 @@ export const POST = auth(async function (req) {
   });
 
   return NextResponse.json({ meal }, { status: 201 });
-}) as any;
+}
