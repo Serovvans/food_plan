@@ -1,0 +1,38 @@
+{
+  "name": "foodplan",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "next": "14.2.35",
+    "react": "^18",
+    "react-dom": "^18",
+    "@prisma/client": "^5",
+    "next-auth": "^5.0.0-beta.28",
+    "node-telegram-bot-api": "^0.66.0",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/node-telegram-bot-api": "^0.64.0",
+    "typescript": "^5",
+    "tailwindcss": "^3",
+    "postcss": "^8",
+    "autoprefixer": "^10",
+    "prisma": "^5",
+    "tsx": "^4"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

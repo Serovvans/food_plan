@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  WEEKEND
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  kcalPer100    Float
+  proteinPer100 Float
+  fatPer100     Float
+  carbsPer100   Float
+  packageSizeG  Float?
+  createdAt     DateTime @default(now())
+
+  ingredients MealIngredient[]
+}
+
+model Meal {
+  id          String   @id @default(cuid())
+  name        String
+  type        MealType
+  prepMinutes Int      @default(15)
+  notes       String?
+  kcal        Float
+  protein     Float
+  fat         Float
+  carbs       Float
+  createdAt   DateTime @default(now())
+
+  ingredients MealIngredient[]
+  planSlots   WeekPlanSlot[]
+  logEntries  DailyLog[]
+}
+
+model MealIngredient {
+  id        String  @id @default(cuid())
+  mealId    String
+  productId String
+  grams     Float
+
+  meal    Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([mealId, productId])
+}
+
+model WeekPlan {
+  id        String   @id @default(cuid())
+  weekStart DateTime
+  createdAt DateTime @default(now())
+
+  slots WeekPlanSlot[]
+
+  @@unique([weekStart])
+}
+
+model WeekPlanSlot {
+  id       String    @id @default(cuid())
+  planId   String
+  day      DayOfWeek
+  mealType MealType
+  mealId   String
+
+  plan WeekPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  meal Meal     @relation(fields: [mealId], references: [id])
+
+  @@unique([planId, day, mealType])
+}
+
+model DailyLog {
+  id       String   @id @default(cuid())
+  date     DateTime
+  mealId   String
+  kcal     Float
+  protein  Float
+  fat      Float
+  carbs    Float
+  loggedAt DateTime @default(now())
+
+  meal Meal @relation(fields: [mealId], references: [id])
+}
+
+model Settings {
+  id             String  @id @default("singleton")
+  telegramChatId String?
+  targetKcal     Int     @default(2100)
+  targetProtein  Int     @default(150)
+  targetFat      Int     @default(67)
+  targetCarbs    Int     @default(210)
+  updatedAt      DateTime @updatedAt
+}
