@@ -1,4 +1,4 @@
-import { PrismaClient, MealType } from "@prisma/client";
+import { PrismaClient, MealType, type Product } from "@prisma/client";
 
 const prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
 
@@ -41,7 +41,7 @@ async function main() {
   console.log("Seeding products...");
 
   // Sequential to avoid exceeding Supabase pooler connection limit
-  const products = [];
+  const products: Product[] = [];
   for (const data of PRODUCT_DATA) {
     const p = await prisma.product.upsert({ where: { name: data.name }, update: {}, create: data });
     products.push(p);

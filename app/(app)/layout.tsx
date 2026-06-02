@@ -1,5 +1,8 @@
 import BottomNav from "@/components/layout/BottomNav";
 
+// Pages require auth + live DB queries — never statically prerender
+export const dynamic = "force-dynamic";
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50">
