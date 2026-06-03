@@ -31,11 +31,15 @@ export default function PlanClient({ weekStart, hasPlan, weekData }: Props) {
   async function handleGenerate() {
     setGenerating(true);
     try {
-      await fetch("/api/plan", {
+      const res = await fetch("/api/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ weekStart }),
       });
+      if (res.status === 401) {
+        router.push("/login?callbackUrl=/plan");
+        return;
+      }
       router.refresh();
     } finally {
       setGenerating(false);
